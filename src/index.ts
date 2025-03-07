@@ -5,9 +5,10 @@ import { exec } from "child_process";
 
 setInterval(() => {
     exec(`rpicam-still -o ${new Date().toISOString()}.jpeg -t 1`, function(err, stdout, stderr){
-        console.log(stdout)
+        // console.log(stdout)
+        //TODO detect errors here
     })
-}, 1000)
+}, 5000)
 
 const app = new Elysia({})
 
