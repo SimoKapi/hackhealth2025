@@ -9,6 +9,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "elysia": "^1.2.25"
+    "elysia": "^1.2.25",
+    "tesseract.js": "^6.0.0"
   }
 }
