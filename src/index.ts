@@ -1,6 +1,14 @@
 import Elysia from "elysia";
 import { add_static_directory } from "./static";
 
+import { exec } from "child_process";
+
+setInterval(() => {
+    exec(`rpicam-still -o ${new Date().toISOString()}.jpeg -t 1`, function(err, stdout, stderr){
+        console.log(stdout)
+    })
+}, 1000)
+
 const app = new Elysia({})
 
 add_static_directory(app, "www", "")
