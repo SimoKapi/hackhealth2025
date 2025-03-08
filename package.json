@@ -10,8 +10,9 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "canvas": "^3.1.0",
+    "@techstark/opencv-js": "^4.10.0-release.1",
     "elysia": "^1.2.25",
+    "jimp": "^1.6.0",
     "tesseract.js": "^6.0.0"
   }
 }
