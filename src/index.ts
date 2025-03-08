@@ -90,7 +90,7 @@ function set_child(){
             set_child();
         })
         child.stderr.on("data", (data) => {
-            // console.log(`ffmpeg: ${data}`)
+            console.log(`ffmpeg: ${data}`)
         })
     }, 2000)
 }
