@@ -27,11 +27,12 @@ if (!fs.existsSync("./photos/ecmo")) {
     fs.mkdirSync("./photos/ecmo")
 }
 if (ecmo_on) setInterval(async () => {
-    let path = `./photos/ecmo/latest.jpeg`
-    exec(`rpicam-still -o ${path} -t 1`, async function (err, stdout, stderr) {
+    let intermediate_path = "./photos/ecmo_latest.jpeg"
+    // let output_path = `./photos/ecmo/latest.jpeg`
+    exec(`rpicam-still -o ${intermediate_path} -t 1`, async function (err, stdout, stderr) {
         //TODO detect errors here
         // transform_image(path)
-        var jimpSrc = await Jimp.read(path);
+        var jimpSrc = await Jimp.read(intermediate_path);
         var src = cv.matFromImageData(jimpSrc.bitmap);
 
         let srcPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, jimpSrc.height, 0, jimpSrc.height, jimpSrc.width, 0, jimpSrc.width]);
@@ -71,7 +72,7 @@ if (ecmo_on) setInterval(async () => {
             data: Buffer.from(dst.data)
         })
             .greyscale()
-            .write('output2.png');
+            .write(`./photos/ecmo/latest.jpeg`);
     });
     // console.log(await Bun.file("./configurations/ecmo").json())
     // let rects = (await Bun.file("./configurations/impella").json())["areas"].map(a => {
