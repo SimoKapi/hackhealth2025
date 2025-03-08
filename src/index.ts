@@ -19,12 +19,13 @@ if (!fs.existsSync("./configurations")) {
 if (!fs.existsSync("./photos/ecmo")) {
     fs.mkdirSync("./photos/ecmo")
 }
-setInterval(() => {
+setInterval(async () => {
     let path = `./photos/ecmo/latest.jpeg`
     exec(`rpicam-still -o ${path} -t 1`, function (err, stdout, stderr) {
         //TODO detect errors here
         // transform_image(path)
-    })
+    });
+    console.log(ocr_image(path, await Bun.file("./configurations/ecmo").json()))
 }, 10000)
 
 setInterval(() => {
@@ -50,7 +51,7 @@ function set_child(){
             set_child();
         })
         child.stderr.on("data", (data) => {
-            console.error(`stderr: ${data}`)
+            // console.log(`ffmpeg: ${data}`)
         })
     }, 2000)
 }
