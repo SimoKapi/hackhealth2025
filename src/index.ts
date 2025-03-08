@@ -1,14 +1,11 @@
 import Elysia, { t } from "elysia";
 import { add_static_directory } from "./static";
 
-import { exec } from "child_process";
+import { exec, spawn } from "child_process";
 
 import * as fs from "fs"
 import { transform_image } from "./transform";
 import { ocr_image } from "./ocr";
-
-import cv from "@techstark/opencv-js"
-import { Jimp } from "jimp";
 
 let sanitize = require("sanitize-filename")
 
@@ -22,48 +19,38 @@ if (!fs.existsSync("./configurations")) {
 if (!fs.existsSync("./photos/ecmo")) {
     fs.mkdirSync("./photos/ecmo")
 }
-// setInterval(() => {
-//     let path = `./photos/ecmo/${new Date().toISOString()}.jpeg`
-//     exec(`rpicam-still -o ${path} -t 1`, function (err, stdout, stderr) {
-//         //TODO detect errors here
-//         transform_image(path)
-//     })
-// }, 5000)
+setInterval(() => {
+    let path = `./photos/ecmo/latest.jpeg`
+    exec(`rpicam-still -o ${path} -t 1`, function (err, stdout, stderr) {
+        //TODO detect errors here
+        transform_image(path)
+    })
+}, 10000)
+
+setInterval(() => {
+    let path = `./photos/impella/latest.jpeg`;
+    Bun.write(path, Bun.file("./photos/webcam.jpg"))
+}, 10000)
 
 if (!fs.existsSync("./photos/impella")) {
     fs.mkdirSync("./photos/impella")
 }
 
-setInterval(() => {
-<<<<<<< HEAD
-    // let cam = new cv.VideoCapture("/dev/video8")
-    // let dst = new cv.Mat();
-    // cam.read(dst);
-    // new Jimp({
-    //         width: dst.cols,
-    //         height: dst.rows,
-    //         data: Buffer.from(dst.data)
-    //     })
-    //         .write('output4.png');
-=======
-    let cam = new cv.VideoCapture("/dev/video8")
-    let dst = new cv.Mat();
-    cam.read(dst);
-    console.log("hi")
-    new Jimp({
-            width: dst.cols,
-            height: dst.rows,
-            data: Buffer.from(dst.data)
-        })
-            .write('output4.png');
->>>>>>> refs/remotes/origin/main
-    // let path = `./photos/ecmo/${new Date().toISOString()}.jpeg`
 
-    // exec(`rpicam-still -o ${path} -t 1`, function (err, stdout, stderr) {
-    //     //TODO detect errors here
-    //     transform_image(path)
-    // })
-}, 5000)
+let child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video2 -r 1 -qscale:v 2 -update 1 -r 0.2 ./photos/webcam.jpg', {shell: true});
+
+child.on('close', (code) => {
+    set_child();
+})
+
+function set_child(){
+    setTimeout(() => {
+        child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video2 -r 1 -qscale:v 2 -update 1 -frames:v 1 ./photos/webcam.jpg', {shell: true});
+        child.on('close', (code) => {
+            set_child();
+        })
+    }, 2000)
+}
 
 
 
