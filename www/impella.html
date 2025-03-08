@@ -51,15 +51,17 @@
                 <table class="table w-auto mx-auto text-start">
                     <tbody>
                         <tr>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">Průtok proplachu</button> 8.7 ml/h</td>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">Signály umístění</button> -8/-9 mmHg</td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">Průtok proplachu</button> <span id="Flow"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">Signál umístění 1</button> <span id="Locator_1"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">Signál umístění 2</button> <span id="Locator_2"></span></td>
                         </tr>
                         <tr>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)">Tlak proplachu</button> 517 mmHg</td>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)">Proud motoru</button> 271/261 mA</td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)">Tlak proplachu</button> <span id="Rinse_pressure"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)">Proud motoru 1</button> <span id="Engine_current_1"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)">Proud motoru 2</button> <span id="Engine_current_2"></span></td>
                         </tr>
                         <tr>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(2)">Průtok Impella</button> 3.9 l/min</td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(2)">Průtok Impella</button> <span id="Impella_flow"></span></td>
                             <td></td>
                         </tr>
                     </tbody>
@@ -86,6 +88,7 @@
                 </div>
                 
                 <script>
+                    const ip = "172.16.88.138"
                     class dataset {
                         constructor(name, x, y, xlabel, ylabel, color) {
                             this.name = name
@@ -96,6 +99,26 @@
                             this.color = color
                         }
                     }
+
+                    const targetIds = [
+                        "Flow",
+                        "Locator_1",
+                        "Locator_2",
+                        "Rinse_pressure",
+                        "Engine_current_1",
+                        "Engine_current_2",
+                        "Impella_flow"
+                    ]
+
+                    const socket = new WebSocket(`ws://${ip}:9200/impella/export/json`)
+                    socket.addEventListener("message", (msg) => {
+                        console.log(msg.data)
+                        const parsed = JSON.parse(msg.data)
+                        targetIds.forEach((id) => {
+                            const index = id.replace("_", " ")
+                            document.getElementById(id).textContent = parsed[index]
+                        })
+                    })
 
                     const datasets = [
                         new dataset(
