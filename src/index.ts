@@ -7,6 +7,9 @@ import * as fs from "fs"
 import { transform_image } from "./transform";
 import { ocr_image } from "./ocr";
 
+import cv from "@techstark/opencv-js"
+import { Jimp } from "jimp";
+
 let sanitize = require("sanitize-filename")
 
 if (!fs.existsSync("./photos")) {
@@ -30,6 +33,24 @@ if (!fs.existsSync("./photos/ecmo")) {
 if (!fs.existsSync("./photos/impella")) {
     fs.mkdirSync("./photos/impella")
 }
+
+setInterval(() => {
+    let cam = new cv.VideoCapture("/dev/video8")
+    let dst = new cv.Mat();
+    cam.read(dst);
+    new Jimp({
+            width: dst.cols,
+            height: dst.rows,
+            data: Buffer.from(dst.data)
+        })
+            .write('output4.png');
+    // let path = `./photos/ecmo/${new Date().toISOString()}.jpeg`
+
+    // exec(`rpicam-still -o ${path} -t 1`, function (err, stdout, stderr) {
+    //     //TODO detect errors here
+    //     transform_image(path)
+    // })
+}, 5000)
 
 
 
