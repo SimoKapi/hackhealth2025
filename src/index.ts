@@ -88,19 +88,19 @@ if (ecmo_on) setInterval(async () => {
     //         } as Tesseract.Rectangle)
     //     }
     // })
-    // app.server?.publish("ecmo_json_export", JSON.stringify(await ocr_image(`./photos/impella/latest.jpeg`, (await Bun.file("./configurations/impella").json())["areas"].map((a : any) => {
-    //     return {
-    //         name: a["label"],
-    //         // unit: "l/min",
-    //         unit: undefined,
-    //         rectangle: ({
-    //             left: a["x"],
-    //             top: a["y"],
-    //             width: a["width"],
-    //             height: a["height"]
-    //         } as Tesseract.Rectangle)
-    //     }
-    // }))))
+    app.server?.publish("ecmo_json_export", JSON.stringify(await ocr_image(`./photos/ecmo/latest.jpeg`, (await Bun.file("./configurations/ecmo").json())["areas"].map((a : any) => {
+        return {
+            name: a["label"],
+            // unit: "l/min",
+            unit: undefined,
+            rectangle: ({
+                left: a["x"],
+                top: a["y"],
+                width: a["width"],
+                height: a["height"]
+            } as Tesseract.Rectangle)
+        }
+    }))))
 }, 10000)
 
 if (impella_on) setInterval(async () => {
