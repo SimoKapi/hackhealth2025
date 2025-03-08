@@ -35,15 +35,15 @@ if (!fs.existsSync("./photos/impella")) {
 }
 
 setInterval(() => {
-    let cam = new cv.VideoCapture("/dev/video8")
-    let dst = new cv.Mat();
-    cam.read(dst);
-    new Jimp({
-            width: dst.cols,
-            height: dst.rows,
-            data: Buffer.from(dst.data)
-        })
-            .write('output4.png');
+    // let cam = new cv.VideoCapture("/dev/video8")
+    // let dst = new cv.Mat();
+    // cam.read(dst);
+    // new Jimp({
+    //         width: dst.cols,
+    //         height: dst.rows,
+    //         data: Buffer.from(dst.data)
+    //     })
+    //         .write('output4.png');
     // let path = `./photos/ecmo/${new Date().toISOString()}.jpeg`
 
     // exec(`rpicam-still -o ${path} -t 1`, function (err, stdout, stderr) {

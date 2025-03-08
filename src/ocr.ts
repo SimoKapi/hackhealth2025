@@ -107,7 +107,7 @@ export async function ocr_image(imgPath : string, rectangles: {name: string, uni
         },
     });
     await worker.setParameters({
-        tessedit_char_whitelist: '0123456789.-'
+        tessedit_char_whitelist: '0123456789.-/'
     });
     const values = [];
     for (const field of rectangles) {
@@ -115,7 +115,7 @@ export async function ocr_image(imgPath : string, rectangles: {name: string, uni
         // values.push(`${field.name}: ${text.trim()}`);//${field.unit}
         values.push({
             id: field.name,
-            value: text.trim()
+            value: text.trim().replaceAll("/", "")
         })
     }
     // console.log(values);
