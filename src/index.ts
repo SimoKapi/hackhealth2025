@@ -38,6 +38,7 @@ setInterval(() => {
     let cam = new cv.VideoCapture("/dev/video8")
     let dst = new cv.Mat();
     cam.read(dst);
+    console.log("hi")
     new Jimp({
             width: dst.cols,
             height: dst.rows,
