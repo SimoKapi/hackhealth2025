@@ -9,6 +9,9 @@ import { ocr_image } from "./ocr";
 
 let sanitize = require("sanitize-filename")
 
+const impella_on = false
+const ecmo_on = true
+
 if (!fs.existsSync("./photos")) {
     fs.mkdirSync("./photos")
 }
@@ -19,7 +22,7 @@ if (!fs.existsSync("./configurations")) {
 if (!fs.existsSync("./photos/ecmo")) {
     fs.mkdirSync("./photos/ecmo")
 }
-setInterval(async () => {
+if (ecmo_on) setInterval(async () => {
     let path = `./photos/ecmo/latest.jpeg`
     exec(`rpicam-still -o ${path} -t 1`, function (err, stdout, stderr) {
         //TODO detect errors here
@@ -54,7 +57,7 @@ setInterval(async () => {
     // }))))
 }, 10000)
 
-setInterval(async () => {
+if (impella_on) setInterval(async () => {
     let path = `./photos/impella/latest.jpeg`;
     console.log("write")
     Bun.write(path, Bun.file("./photos/webcam.jpg"))
