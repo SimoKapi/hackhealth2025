@@ -107,7 +107,7 @@ export async function ocr_image(imgPath : string, rectangles: {name: string, uni
         },
     });
     await worker.setParameters({
-        tessedit_char_whitelist: '0123456789./-'
+        tessedit_char_whitelist: '0123456789.-'
     });
     const values = [];
     for (const field of rectangles) {

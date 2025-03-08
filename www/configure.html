@@ -204,13 +204,15 @@
         let output = [];
         for (let k in rect_register) {
             let q = window.getComputedStyle(rect_register[k]["rectangle"])
-            output.push({
+            let obj = {
                 x: Number.parseFloat(q.left) * k1,
-                y: Number.parseFloat(q.top) * k2,
+                y: Math.min(img.naturalHeight, Number.parseFloat(q.top) * k2),
                 width: Number.parseFloat(q.width) * k1,
                 height: Number.parseFloat(q.height) * k2,
                 label: rect_register[k]["selection"].label.value
-            })
+            }
+            if (obj.y + obj.height > img.naturalHeight) { obj.height = img.naturalHeight - obj.y }
+            output.push(obj)
         }
 
         return output;
