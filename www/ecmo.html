@@ -101,51 +101,61 @@
                         }
                     }
 
-                    const targetIds = [
-                        "Flow",
-                        "Locator_1",
-                        "Locator_2",
-                        "Rinse_pressure",
-                        "Engine_current_1",
-                        "Engine_current_2",
-                        "Impella_flow"
+                    const dataLimit = 10
+                    const xAxis = Array(dataLimit).fill(1).map((a, i) => 10*(i + 1))
+                    // const xAxis = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+                    const datasets = [
+                        new dataset(
+                            xAxis,
+                            [],
+                            "time",
+                            "V",
+                            "rgba(255, 0, 0, 1)"
+                        ),
+                        new dataset(
+                            xAxis,
+                            [],
+                            "time",
+                            "Rotations",
+                            "rgba(255, 0, 0, 1)"
+                        ),
+                        new dataset(
+                            xAxis,
+                            [],
+                            "time",
+                            "P_ven",
+                            "rgba(255, 0, 0, 1)"
+                        ),
+                        new dataset(
+                            xAxis,
+                            [],
+                            "time",
+                            "P_art",
+                            "rgba(255, 0, 0, 1)"
+                        ),
+                        new dataset(
+                            xAxis,
+                            [],
+                            "time",
+                            "P_ing",
+                            "rgba(255, 0, 0, 1)"
+                        )
                     ]
 
                     const socket = new WebSocket(`ws://${ip}:9200/ecmo/export/json`)
                     socket.addEventListener("message", (msg) => {
                         const parsed = JSON.parse(msg.data)
-                        targetIds.forEach((id) => {
-                            const index = id.replaceAll("_", " ")
-                            document.getElementById(id).textContent = parsed.find(i => i.id === index).value
-                        })
+                        for (let i = 0; i < datasets.length; i++) {
+                            const id = id.replaceAll(" ", "_")
+                            const index = datasets[i].ylabel
+                            const idValue = parsed.find(i => i.id === index).value
+                            document.getElementById(id).textContent = idValue
+                            datasets[i].y.push(idValue)
+                            while (datasets[i].y.length > dataLimit) {
+                                datasets[i].y.shift()
+                            }
+                        }
                     })
-
-                    const datasets = [
-                        new dataset(
-                            "Pressure",
-                            [100,200,300,400,500,600,700,800,900,1000],
-                            [860,1140,1060,1000,1070,1110,1330,2210,7830,2478],
-                            "time",
-                            "pressure",
-                            "rgba(255, 0, 0, 1)"
-                        ),
-                        new dataset(
-                            "V",
-                            [100,200,300,400,500,600,700,800,900,1000],
-                            [1600,1700,1700,1900,2000,2700,4000,5000,6000,7000],
-                            "time",
-                            "volume",
-                            "rgba(0, 255, 0, 1)"
-                        ),
-                        new dataset(
-                            "Revolutions",
-                            [100,200,300,400,500,600,700,800,900,1000],
-                            [300,700,2000,5000,6000,4000,2000,1000,200,100],
-                            "time",
-                            "revolution",
-                            "rgba(0, 0, 255, 1)"
-                        ),
-                    ]
 
                     const chart = new Chart("myChart", {
                         type: "line",
