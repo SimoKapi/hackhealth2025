@@ -1,25 +1,78 @@
-import Elysia from "elysia";
+import Elysia, { t } from "elysia";
 import { add_static_directory } from "./static";
 
 import { exec } from "child_process";
 
 import * as fs from "fs"
 import { transform_image } from "./transform";
+import { ocr_image } from "./ocr";
 
-if (!fs.existsSync("photos")) {
-    fs.mkdirSync("photos")
+let sanitize = require("sanitize-filename")
+
+if (!fs.existsSync("./photos")) {
+    fs.mkdirSync("./photos")
 }
 
-setInterval(() => {
-    let path = `./photos/${new Date().toISOString()}.jpeg`
-    exec(`rpicam-still -o ${path} -t 1`, function (err, stdout, stderr) {
-        //TODO detect errors here
-        transform_image(path)
-    })
-}, 5000)
+if (!fs.existsSync("./photos/ecmo")) {
+    fs.mkdirSync("./photos/ecmo")
+}
+// setInterval(() => {
+//     let path = `./photos/ecmo/${new Date().toISOString()}.jpeg`
+//     exec(`rpicam-still -o ${path} -t 1`, function (err, stdout, stderr) {
+//         //TODO detect errors here
+//         transform_image(path)
+//     })
+// }, 5000)
+
+if (!fs.existsSync("./photos/impella")) {
+    fs.mkdirSync("./photos/impella")
+}
+
 
 
 const app = new Elysia({})
+
+app.get("/image/file/:series/:name", ({params}) => {
+    console.log(sanitize(params.name))
+    return Bun.file(`./photos/${sanitize(params.series)}/${sanitize(params.name)}`)
+})
+
+app.get("/image/latest/:series", ({params}) => {
+    let photos = fs.readdirSync(`./photos/${sanitize(params.series)}`).sort();
+    return photos[0]
+})
+
+app.post("/ocr/sample/:series", async ({params, body}) => {
+    let rects = body.areas.map(a => {
+        return {
+            name: a["label"],
+            // unit: "l/min",
+            unit: undefined,
+            rectangle: ({
+                left: a["x"],
+                top: a["y"],
+                width: a["width"],
+                height: a["height"]
+            } as Tesseract.Rectangle)
+        }
+    })
+    return (await ocr_image(`./photos/${sanitize(params.series)}/${sanitize(body.image_name)}`, rects))
+}, {
+    body: t.Object({
+        image_name: t.String(),
+        areas: t.Array(t.Object({
+            label: t.String(),
+            x: t.Numeric(),
+            y: t.Numeric(),
+            width: t.Numeric(),
+            height: t.Numeric(),
+        }))
+    })
+})
+
+app.post("/api/configure/:type", ({params}) => {
+    
+})
 
 app.ws("/export/json", {
     open(ws) {
@@ -32,6 +85,7 @@ app.ws("/export/json", {
 
 add_static_directory(app, "www", "")
 app.get("/", () => Bun.file("www/index.html"))
+app.get("/configure/:type", () => Bun.file("www/configure.html"))
 
 console.log("done")
 app.listen(9200);

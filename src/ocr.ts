@@ -6,8 +6,6 @@ const image = "impella.png"
 const imgPath = path.join(testDirectory, image)
 
 import { createWorker } from 'tesseract.js';
-
-const worker = await createWorker('eng');
 // const rectangles: {
 //     name: string,
 //     unit: string,
@@ -65,52 +63,62 @@ const worker = await createWorker('eng');
 //     },
 // ];
 
-const rectangles: {
-    name: string,
-    unit: string,
-    rectangle: Tesseract.Rectangle
-}[] = [
-    {
-        name: "Ao",
-        unit: "mmHg",
-        rectangle: {
-            left: 1224,
-            top: 367,
-            width: 173,
-            height: 56,
-        }
-    },
-    {
-        name: "Proud motoru",
-        unit: "mA",
-        rectangle: {
-            left: 1224,
-            top: 680,
-            width: 277,
-            height: 77
-        }
-    },
-    {
-        name: "Prutok Impella",
-        unit: "l/min",
-        rectangle: {
-            left: 138,
-            top: 972,
-            width: 190,
-            height: 102
-        }
-    }
-];
+// const rectangles: {
+//     name: string,
+//     unit: string,
+//     rectangle: Tesseract.Rectangle
+// }[] = [
+//     {
+//         name: "Ao",
+//         unit: "mmHg",
+//         rectangle: {
+//             left: 1224,
+//             top: 367,
+//             width: 173,
+//             height: 56,
+//         }
+//     },
+//     {
+//         name: "Proud motoru",
+//         unit: "mA",
+//         rectangle: {
+//             left: 1224,
+//             top: 680,
+//             width: 277,
+//             height: 77
+//         }
+//     },
+//     {
+//         name: "Prutok Impella",
+//         unit: "l/min",
+//         rectangle: {
+//             left: 138,
+//             top: 972,
+//             width: 190,
+//             height: 102
+//         }
+//     }
+// ];
 
-(async () => {
+export async function ocr_image(imgPath : string, rectangles: {name: string, unit: string|undefined, rectangle: Tesseract.Rectangle}[]) {
+    const worker = await createWorker('eng', 1, {
+        logger(arg) {
+            // console.log(arg)
+        },
+    });
     await worker.setParameters({
         tessedit_char_whitelist: '0123456789./-'
     });
     const values = [];
     for (const field of rectangles) {
         const { data: { text } } = await worker.recognize(imgPath, { rectangle: field.rectangle });
-        values.push(`${field.name}: ${text.trim()} ${field.unit}`);
+        // values.push(`${field.name}: ${text.trim()}`);//${field.unit}
+        values.push({
+            id: field.name,
+            value: text.trim()
+        })
     }
-    console.log(values);
+    // console.log(values);
     await worker.terminate();
-})();
+    return values;
+};

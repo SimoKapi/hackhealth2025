@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Image box selector</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='/css/selector.css'>
+</head>
+<script>
+    let config_type = window.location.pathname.split("/")[2]
+</script>
+<body>
+    <div id="container" class="container">
+        <!-- <canvas width="200" class="box-selector" style="z-index: 2;"></canvas> -->
+        <!-- <canvas width="200" class="box-selector-temp" style="z-index: 2;"></canvas> -->
+        <img id="img" src="/firefox.jpg" style="max-height: 100vh; max-width: 60vw;">
+        <div id="rect_container" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+            <!-- <div class="rect" style="position: absolute; top: 0; min-height: 20px; min-width: 20px; background-color: #00ffff6e;"></div> -->
+        </div>
+    </div>
+    <div class="container selection-list">
+        <div>
+            <!-- <input type="file" onchange="load_img(this)"> -->
+             <button onclick="load_latest()">Load Latest Image</button>
+        </div>
+        <button onclick="create_rect()">Add Rectangle</button>
+        <button onclick="clearSelection()">Reset selection</button>
+        <ul id="selections">
+            
+        </ul>
+        <button onclick="request_sample()">Request Sample</button>
+
+        <button onclick="request_sample()">Save Configuration</button>
+    </div>
+</body>
+
+<script>
+
+    let rect_register = {}
+
+    function load_img(input){
+        if(input.files && input.files[0]){
+            let reader = new FileReader();
+
+            reader.onload = (e) => {
+                document.getElementById("img").src = e.target.result
+            }
+
+            reader.readAsDataURL(input.files[0])
+        }
+    }
+
+    let latest_name = undefined;
+
+    async function load_latest(){
+        let res = await fetch(`http://localhost:9200/image/latest/${config_type}`)
+        latest_name = await res.text();
+
+        let res_img = await fetch(`http://localhost:9200/image/file/${config_type}/${latest_name}`)
+        var objectURL = URL.createObjectURL((await res_img.blob()));
+        document.getElementById("img").src = objectURL
+    }
+
+    function create_dropdown(values = []){
+        let dropdown = document.createElement("select");
+        for(let val of values){
+            let el = document.createElement("option");
+            el.innerText = val;
+            el.value = val;
+            dropdown.appendChild(el);
+        }
+        return dropdown;
+    }
+
+    function create_rect(){
+        let el = (() => {
+            let el = document.createElement("div");
+            el.setAttribute("class", "rect");
+            el.setAttribute("style", "position: absolute; top: 0; min-height: 20px; min-width: 20px; background-color: #00ffff6e;");
+            return el;
+        })();
+        el.el_id = crypto.randomUUID();
+
+        let di = document.createElement("div")
+        di.style.cssText = "display: flex; flex-direction: row;"
+        di.addEventListener("mouseenter", (event) => {
+            el.col_backup = el.style.backgroundColor;
+            el.style.backgroundColor = "rgba(187, 255, 0, 0.43)"
+        })
+        di.addEventListener("mouseleave", (event) => {
+            el.style.backgroundColor = el.col_backup;
+        })
+        {
+            let li = document.createElement("li");
+            li.style.cssText = "margin-right: 10px;"
+            li.innerText = `X: 0; Y: 0; WIDTH: 0; HEIGHT: 0`;
+            di.li = li;
+            di.appendChild(li)
+
+            let dropdown = create_dropdown(["V", "P_ven", "P_int", "P_art", "Rotations"]);
+            dropdown.style.cssText = "margin-right: 10px;"
+            di.label = dropdown
+            di.appendChild(dropdown)
+
+            let b = document.createElement("button");
+            b.innerText = "Remove";
+            b.onclick = () => {
+                if(selected_rectangle == rect_register[el.el_id]["rectangle"]){
+                    selected_rectangle = null;
+                }
+
+                rect_register[el.el_id]["selection"].remove();
+                rect_register[el.el_id]["rectangle"].remove();
+                delete rect_register[el.el_id];
+                // el.remove();
+            }
+            di.appendChild(b)
+        }
+
+        rect_register[el.el_id] = {};
+        rect_register[el.el_id]["rectangle"] = el
+        rect_register[el.el_id]["selection"] = di;
+
+        document.getElementById("rect_container").appendChild(el)
+        document.getElementById("selections").appendChild(di)
+
+
+        selected_rectangle = el;
+        el.style.pointerEvents = "none";
+        el.style.backgroundColor = "#8000808c";
+    }
+
+
+    let container = document.getElementById("container");
+
+    let selected_rectangle = null;
+    let count = 0;
+
+    container.addEventListener("click", (event) => {
+
+        if(event.target.classList.contains("rect") && selected_rectangle === null){
+            selected_rectangle = event.target;
+            selected_rectangle.style.pointerEvents = "none";
+            selected_rectangle.style.backgroundColor = "#8000808c";
+            return;
+        }
+
+        let c = window.getComputedStyle(container);
+
+        let top = Math.round(event.clientY - Number.parseFloat(c.top));
+        let bottom = Math.round((Number.parseFloat(c.top) + Number.parseFloat(c.height)) - (event.clientY - Number.parseFloat(c.top)));
+
+        let left = Math.round(event.clientX - Number.parseFloat(c.left));
+        let right = Math.round((Number.parseFloat(c.left) + Number.parseFloat(c.width)) - (event.clientX - Number.parseFloat(c.left)));
+
+        if(selected_rectangle === null){
+            if(count > 1){
+                count = 0;
+            }
+            return;
+        }
+        // console.log(top, bottom, left, right)
+        
+        if(count == 0){
+            selected_rectangle.style.top = `${top}px`
+            selected_rectangle.style.left = `${left}px`
+            selected_rectangle.style.backgroundColor = "rgba(25, 340, 0, 0.43)"
+        }
+        if(count == 1){
+            selected_rectangle.style.bottom = `${bottom}px`
+            selected_rectangle.style.right = `${right}px`
+        }
+
+        let q = window.getComputedStyle(selected_rectangle);
+        rect_register[selected_rectangle.el_id]["selection"].li.innerText = `X: ${q.left}; Y: ${q.top}; WIDTH: ${q.width}; HEIGHT: ${q.height}`
+
+        count++;
+        console.log(count)
+        if(count > 1){
+            count = 0;
+            selected_rectangle.style.backgroundColor = "#00ffff6e";
+            selected_rectangle.style.pointerEvents = "auto";
+            selected_rectangle = null
+        }
+
+    })
+
+    async function request_sample(){
+
+        let img = document.getElementById("img")
+        let comp_img = window.getComputedStyle(img);
+
+        console.log(img.naturalWidth, Number.parseFloat(comp_img.width))
+        let k1 = img.naturalWidth/Number.parseFloat(comp_img.width);
+        let k2 = img.naturalHeight/Number.parseFloat(comp_img.height);
+
+        let output = [];
+        for(let k in rect_register){
+            let q = window.getComputedStyle(rect_register[k]["rectangle"])
+            output.push({
+                x: Number.parseFloat(q.left)*k1,
+                y: Number.parseFloat(q.top)*k2,
+                width: Number.parseFloat(q.width)*k1,
+                height: Number.parseFloat(q.height)*k2,
+                label: rect_register[k]["selection"].label.value
+            })
+        }
+        // console.log(output)
+        if(latest_name !== undefined){
+            let res = await fetch(`http://localhost:9200/ocr/sample/${config_type}`, {
+                method: "POST",
+                headers: {"content-type": "application/json"},
+                body: JSON.stringify({
+                    image_name: latest_name,
+                    areas: output
+                })
+            })
+            if(res.ok){
+                let j = await res.json();
+                for(let val of j){
+                    for(let k in rect_register){
+                        if(rect_register[k]["selection"].label.value == val["id"]){
+                            while(rect_register[k]["rectangle"].firstChild){
+                                rect_register[k]["rectangle"].lastChild.remove();
+                            }
+                            let el = document.createElement("div");
+                            el.style.cssText = "pointer-events: none; position: absolute; bottom: 100%;"
+                            el.innerText = val["value"]
+                            rect_register[k]["rectangle"].appendChild(el)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+</script>
+</html>
