@@ -78,7 +78,7 @@ if (!fs.existsSync("./photos/impella")) {
 }
 
 
-let child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video0 -r 1 -qscale:v 2 -update 1 -r 0.2 ./photos/webcam.jpg', {shell: true});
+let child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video0 -r 1 -qscale:v 2 -update 1 -r 1 ./photos/webcam.jpg', {shell: true});
 
 child.on('close', (code) => {
     set_child();
@@ -86,7 +86,7 @@ child.on('close', (code) => {
 
 function set_child(){
     setTimeout(() => {
-        child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video0 -r 1 -qscale:v 2 -update 1 -frames:v 1 ./photos/webcam.jpg', {shell: true});
+        child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video0 -r 1 -qscale:v 2 -update 1 ./photos/webcam.jpg', {shell: true});
         child.on('close', (code) => {
             set_child();
         })
