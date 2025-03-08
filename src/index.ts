@@ -12,6 +12,9 @@ let sanitize = require("sanitize-filename")
 if (!fs.existsSync("./photos")) {
     fs.mkdirSync("./photos")
 }
+if (!fs.existsSync("./configurations")) {
+    fs.mkdirSync("./configurations")
+}
 
 if (!fs.existsSync("./photos/ecmo")) {
     fs.mkdirSync("./photos/ecmo")
@@ -70,8 +73,18 @@ app.post("/ocr/sample/:series", async ({params, body}) => {
     })
 })
 
-app.post("/api/configure/:type", ({params}) => {
-    
+app.post("/api/configure/:type", async ({params, body}) => {
+    await Bun.write(`./configurations/${sanitize(params.type)}`, JSON.stringify(body, null, 2))
+}, {
+    body: t.Object({
+        areas: t.Array(t.Object({
+            label: t.String(),
+            x: t.Numeric(),
+            y: t.Numeric(),
+            width: t.Numeric(),
+            height: t.Numeric(),
+        }))
+    })
 })
 
 app.ws("/export/json", {
