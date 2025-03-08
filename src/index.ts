@@ -56,6 +56,7 @@ setInterval(async () => {
 
 setInterval(async () => {
     let path = `./photos/impella/latest.jpeg`;
+    console.log("write")
     Bun.write(path, Bun.file("./photos/webcam.jpg"))
     app.server?.publish("impella_json_export", JSON.stringify(await ocr_image(`./photos/impella/latest.jpeg`, (await Bun.file("./configurations/impella").json())["areas"].map((a : any) => {
         return {
