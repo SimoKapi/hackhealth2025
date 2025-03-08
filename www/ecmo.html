@@ -49,7 +49,7 @@
                     System is active
                 </div>
                 <table class="table w-auto mx-auto">
-                    <tbody>
+                    <!-- <tbody>
                         <tr>
                             <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">V</button> 3.36 lpm</td>
                             <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
@@ -63,6 +63,23 @@
                         </tr>
                         <tr>
                             <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)">P<sub>Int</sub></button> 111 mmHg</td>
+                            <td></td>
+                        </tr>
+                    </tbody> -->
+                    <tbody>
+                        <tr>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">V</button> <span id="value-v"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                              </svg></button> <span id="value-rotations"></span></td>
+                        </tr>
+                        <tr>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(2)">P<sub>Ven</sub></button> <span id="value-pven"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">P<sub>Art</sub></button> <span id="value-part"></span></td>
+                        </tr>
+                        <tr>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)">P<sub>Int</sub></button> <span id="value-pint"></span></td>
                             <td></td>
                         </tr>
                     </tbody>
@@ -89,6 +106,7 @@
                 </div>
                 
                 <script>
+                    const ip = "172.16.88.138"
                     class dataset {
                         constructor(name, x, y, xlabel, ylabel, color) {
                             this.name = name
@@ -99,6 +117,19 @@
                             this.color = color
                         }
                     }
+
+                    const targetIds = [
+                        "value-v",
+                        "value-rotations",
+                        "value-pven",
+                        "value-part",
+                        "value-pint"
+                    ]
+
+                    const socket = new WebSocket(`ws://${ip}:9200/ecmo/export/json`)
+                    // socket.on((event) => {
+                    //     console.log(event)
+                    // })
 
                     const datasets = [
                         new dataset(
