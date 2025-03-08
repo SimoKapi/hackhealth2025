@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Impella viewer</title>
-    <link rel="stylesheet" href="css/ecmo.css">
+    <link rel="stylesheet" href="/css/view.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=refresh" />
     <link href="/css/bootstrap.css" rel="stylesheet">
     <script
@@ -51,27 +51,27 @@
                 <table class="table w-auto mx-auto text-start">
                     <tbody>
                         <tr>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">Průtok proplachu</button> <span id="Flow"></span></td>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">Signál umístění 1</button> <span id="Locator_1"></span></td>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">Signál umístění 2</button> <span id="Locator_2"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">Průtok proplachu</button><br> <span id="Flow"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)">Signál umístění 1</button><br> <span id="Locator_1"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(2)">Signál umístění 2</button><br> <span id="Locator_2"></span></td>
                         </tr>
                         <tr>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)">Tlak proplachu</button> <span id="Rinse_pressure"></span></td>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)">Proud motoru 1</button> <span id="Engine_current_1"></span></td>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)">Proud motoru 2</button> <span id="Engine_current_2"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(3)">Tlak proplachu</button><br> <span id="Rinse_pressure"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(4)">Proud motoru 1</button><br> <span id="Engine_current_1"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(5)">Proud motoru 2</button><br> <span id="Engine_current_2"></span></td>
                         </tr>
                         <tr>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(2)">Průtok Impella</button> <span id="Impella_flow"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(6)">Průtok Impella</button><br> <span id="Impella_flow"></span></td>
                             <td></td>
                         </tr>
                     </tbody>
                 </table>
-                <div class="alert alert-warning" role="alert">
+                <!-- <div class="alert alert-warning" role="alert">
                     Warning - Screen has been changed
                 </div>
                 <div class="alert alert-warning">
                     Warning - unreadable data
-                </div>
+                </div> -->
             </div>
             <hr>
             <div class="graphs">
@@ -90,8 +90,8 @@
                 <script>
                     const ip = "172.16.88.138"
                     class dataset {
-                        constructor(name, x, y, xlabel, ylabel, color) {
-                            this.name = name
+                        constructor(x, y, xlabel, ylabel, color) {
+                            // this.name = name
                             this.x = x
                             this.y = y
                             this.xlabel = xlabel
@@ -100,52 +100,75 @@
                         }
                     }
 
-                    const targetIds = [
-                        "Flow",
-                        "Locator_1",
-                        "Locator_2",
-                        "Rinse_pressure",
-                        "Engine_current_1",
-                        "Engine_current_2",
-                        "Impella_flow"
-                    ]
-
-                    const socket = new WebSocket(`ws://${ip}:9200/impella/export/json`)
-                    socket.addEventListener("message", (msg) => {
-                        console.log(msg.data)
-                        const parsed = JSON.parse(msg.data)
-                        targetIds.forEach((id) => {
-                            const index = id.replace("_", " ")
-                            document.getElementById(id).textContent = parsed[index]
-                        })
-                    })
-
+                    const dataLimit = 10
+                    const xAxis = Array(dataLimit).fill(1).map((a, i) => 10*(i + 1))
+                    // const xAxis = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
                     const datasets = [
                         new dataset(
-                            "Pressure",
-                            [100,200,300,400,500,600,700,800,900,1000],
-                            [860,1140,1060,1000,1070,1110,1330,2210,7830,2478],
+                            xAxis,
+                            [],
                             "time",
-                            "pressure",
+                            "Flow",
                             "rgba(255, 0, 0, 1)"
                         ),
                         new dataset(
-                            "V",
-                            [100,200,300,400,500,600,700,800,900,1000],
-                            [1600,1700,1700,1900,2000,2700,4000,5000,6000,7000],
+                            xAxis,
+                            [],
                             "time",
-                            "volume",
-                            "rgba(0, 255, 0, 1)"
+                            "Locator 1",
+                            "rgba(255, 0, 0, 1)"
                         ),
                         new dataset(
-                            "Revolutions",
-                            [100,200,300,400,500,600,700,800,900,1000],
-                            [300,700,2000,5000,6000,4000,2000,1000,200,100],
+                            xAxis,
+                            [],
                             "time",
-                            "revolution",
-                            "rgba(0, 0, 255, 1)"
+                            "Locator 2",
+                            "rgba(255, 0, 0, 1)"
                         ),
-                    ]
+                        new dataset(
+                            xAxis,
+                            [],
+                            "time",
+                            "Rinse pressure",
+                            "rgba(255, 0, 0, 1)"
+                        ),
+                        new dataset(
+                            xAxis,
+                            [],
+                            "time",
+                            "Engine current 1",
+                            "rgba(255, 0, 0, 1)"
+                        ),
+                        new dataset(
+                            xAxis,
+                            [],
+                            "time",
+                            "Engine current 2",
+                            "rgba(255, 0, 0, 1)"
+                        ),
+                        new dataset(
+                            xAxis,
+                            [],
+                            "time",
+                            "Impella flow",
+                            "rgba(255, 0, 0, 1)"
+                        )
+                ]
+
+                    const socket = new WebSocket(`ws://${ip}:9200/impella/export/json`)
+                    socket.addEventListener("message", (msg) => {
+                        const parsed = JSON.parse(msg.data)
+                        for (let i = 0; i < datasets.length; i++) {
+                            const id = id.replaceAll(" ", "_")
+                            const index = datasets[i].ylabel
+                            const idValue = parsed.find(i => i.id === index).value
+                            document.getElementById(id).textContent = idValue
+                            datasets[i].y.push(idValue)
+                            while (datasets[i].y.length > dataLimit) {
+                                datasets[i].y.shift()
+                            }
+                        }
+                    })
 
                     const chart = new Chart("myChart", {
                         type: "line",
@@ -176,19 +199,19 @@
                         }
                     })
 
-                    function selectSet(setIndex) {
-                        chart.data.labels = datasets[setIndex].x
+                    function selectSet(index) {
+                        chart.data.labels = datasets[index].x
                         chart.data.datasets = [{
-                            label: datasets[setIndex].name,
-                            data: datasets[setIndex].y,
-                            borderColor: datasets[setIndex].color,
+                            label: datasets[index].ylabel,
+                            data: datasets[index].y,
+                            borderColor: datasets[index].color,
                             fill: false
                         }]
-                        chart.options.scales.xAxes[0].scaleLabel.labelString = datasets[setIndex].xlabel
-                        chart.options.scales.yAxes[0].scaleLabel.labelString = datasets[setIndex].ylabel
+                        chart.options.scales.xAxes[0].scaleLabel.labelString = datasets[index].xlabel
+                        chart.options.scales.yAxes[0].scaleLabel.labelString = datasets[index].ylabel
                         chart.update()
                         const set_title = document.getElementById("set_title")
-                        set_title.textContent = datasets[setIndex].name
+                        set_title.textContent = datasets[index].name
                     }
                 </script>
             </div>

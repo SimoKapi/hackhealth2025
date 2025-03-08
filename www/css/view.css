@@ -67,3 +67,9 @@ th, td {
     border-radius: 50px;
     /* background-color: transparent; */
 }
+
+.table span {
+    text-align: center;
+    width:100%;
+    display: block;
+}
