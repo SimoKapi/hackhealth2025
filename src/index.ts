@@ -7,6 +7,10 @@ import * as fs from "fs"
 import { transform_image } from "./transform";
 import { ocr_image } from "./ocr";
 
+
+import { Jimp } from "jimp";
+import cv from "@techstark/opencv-js"
+
 let sanitize = require("sanitize-filename")
 
 const impella_on = false
@@ -61,7 +65,7 @@ if (impella_on) setInterval(async () => {
     let path = `./photos/impella/latest.jpeg`;
     console.log("write")
     Bun.write(path, Bun.file("./photos/webcam.jpg"))
-    app.server?.publish("impella_json_export", JSON.stringify(await ocr_image(`./photos/impella/latest.jpeg`, (await Bun.file("./configurations/impella").json())["areas"].map((a : any) => {
+    app.server?.publish("impella_json_export", JSON.stringify(await ocr_image(`./photos/impella/latest.jpeg`, (await Bun.file("./configurations/impella").json())["areas"].map((a: any) => {
         return {
             name: a["label"],
             // unit: "l/min",
@@ -103,17 +107,17 @@ if (impella_on) {
 
 const app = new Elysia({})
 
-app.get("/image/file/:series/:name", ({params}) => {
+app.get("/image/file/:series/:name", ({ params }) => {
     console.log(sanitize(params.name))
     return Bun.file(`./photos/${sanitize(params.series)}/${sanitize(params.name)}`)
 })
 
-app.get("/image/latest/:series", ({params}) => {
+app.get("/image/latest/:series", ({ params }) => {
     let photos = fs.readdirSync(`./photos/${sanitize(params.series)}`).sort();
     return photos[0]
 })
 
-app.post("/ocr/sample/:series", async ({params, body}) => {
+app.post("/ocr/sample/:series", async ({ params, body }) => {
     let rects = body.areas.map(a => {
         return {
             name: a["label"],
@@ -141,7 +145,7 @@ app.post("/ocr/sample/:series", async ({params, body}) => {
     })
 })
 
-app.post("/api/configure/:type", async ({params, body}) => {
+app.post("/api/configure/:type", async ({ params, body }) => {
     await Bun.write(`./configurations/${sanitize(params.type)}`, JSON.stringify(body, null, 2))
 }, {
     body: t.Object({
@@ -176,6 +180,54 @@ app.ws("/impella/export/json", {
 add_static_directory(app, "www", "")
 app.get("/", () => Bun.file("www/index.html"))
 app.get("/configure/:type", () => Bun.file("www/configure.html"))
+
+
+
+// var jimpSrc = await Jimp.read("Untitled.jpeg");
+// var src = cv.matFromImageData(jimpSrc.bitmap);
+
+// let srcPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, jimpSrc.height, 0, jimpSrc.height, jimpSrc.width, 0, jimpSrc.width]);
+
+
+
+// // Define destination points (e.g. a rectangle of desired output dimensions)
+// let width = jimpSrc.width + 500;  // desired width
+// let height = jimpSrc.height + 500; // desired height
+
+// let dstPoints = cv.matFromArray(4, 1, cv.CV_32FC2,
+//     [
+//         0, 0,
+//         jimpSrc.height - 150, 0,
+//         jimpSrc.height - 400, jimpSrc.width + 300,
+//         0, jimpSrc.width + 100
+//     ]
+// );
+
+// // Get the perspective transformation matrix
+// let M = cv.getPerspectiveTransform(srcPoints, dstPoints);
+
+// // Create an output Mat and set the desired size
+// let dst = new cv.Mat();
+// let dsize = new cv.Size(width, height);
+
+// // Apply the warp
+// cv.warpPerspective(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+
+
+// // Don't forget to free memory
+// srcPoints.delete(); dstPoints.delete(); M.delete();
+
+// new Jimp({
+//     width: dst.cols,
+//     height: dst.rows,
+//     data: Buffer.from(dst.data)
+// })
+// .greyscale()
+// .write('output2.png');
+
+
+
+
 
 console.log("done")
 // app.listen(9200);
