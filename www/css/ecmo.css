@@ -21,23 +21,22 @@ body {
 }
 
 .dashboard {
-    display: flex;
-    flex-direction: row;
+    /* display: flex;
+    flex-direction: row; */
     min-height: 100vh;
 }
 
 .data {
     flex: 2;
-    padding: 2rem;
+    padding: 0 2rem;
 }
 
 .graphs {
     flex: 3;
 }
 
-.data-table {
+/* .data-table {
     padding:0;
-    /* overflow: hidden; */
     border-collapse: collapse;
     width:100%;
 
@@ -57,13 +56,14 @@ th, td {
 
 .data-table tbody {
     background-color: var(--blank);
-}
+} */
 
 .val-name {
-    width: 1.5rem;
+    min-width: 3rem;
     font-size: 13px;
-    display: inline-block;
-    border: 1px solid white;
+    /* display: inline-block; */
+    /* border: 1px solid white; */
     padding: 5px 10px;
     border-radius: 50px;
+    /* background-color: transparent; */
 }
