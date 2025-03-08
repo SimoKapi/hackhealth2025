@@ -122,7 +122,11 @@ app.get("/", () => Bun.file("www/index.html"))
 app.get("/configure/:type", () => Bun.file("www/configure.html"))
 
 console.log("done")
-app.listen(9200);
+// app.listen(9200);
+app.listen({
+    hostname: "0.0.0.0",
+    port: 9200
+})
 
 
 
