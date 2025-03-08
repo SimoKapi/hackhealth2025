@@ -35,7 +35,8 @@ export async function transform_image(filepath: string){
     let dsize = new cv.Size(width, height);
     
     // Apply the warp
-    cv.warpPerspective(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+    // cv.warpPerspective(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+    cv.cvtColor(src, dst, cv.COLOR_BGR2GRAY)
     
     // Don't forget to free memory
     srcPoints.delete(); dstPoints.delete(); M.delete();
