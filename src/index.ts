@@ -54,9 +54,22 @@ setInterval(async () => {
     }))))
 }, 10000)
 
-setInterval(() => {
+setInterval(async () => {
     let path = `./photos/impella/latest.jpeg`;
     Bun.write(path, Bun.file("./photos/webcam.jpg"))
+    app.server?.publish("impella_json_export", JSON.stringify(await ocr_image(`./photos/impella/latest.jpeg`, (await Bun.file("./configurations/impella").json())["areas"].map((a : any) => {
+        return {
+            name: a["label"],
+            // unit: "l/min",
+            unit: undefined,
+            rectangle: ({
+                left: a["x"],
+                top: a["y"],
+                width: a["width"],
+                height: a["height"]
+            } as Tesseract.Rectangle)
+        }
+    }))))
 }, 10000)
 
 if (!fs.existsSync("./photos/impella")) {
@@ -149,7 +162,7 @@ app.ws("/ecmo/export/json", {
 
 app.ws("/impella/export/json", {
     open(ws) {
-        ws.subscribe("json_export")
+        ws.subscribe("impella_json_export")
     },
     message(ws, message) {
 
