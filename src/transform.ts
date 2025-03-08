@@ -2,6 +2,7 @@ import cv from "@techstark/opencv-js"
 import { Jimp } from 'jimp';
 
 export async function transform_image(filepath: string){
+    console.log(filepath)
     var jimpSrc = await Jimp.read(filepath);
     var src = cv.matFromImageData(jimpSrc.bitmap);
     

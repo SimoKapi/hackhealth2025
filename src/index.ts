@@ -26,7 +26,7 @@ if (ecmo_on) setInterval(async () => {
     let path = `./photos/ecmo/latest.jpeg`
     exec(`rpicam-still -o ${path} -t 1`, function (err, stdout, stderr) {
         //TODO detect errors here
-        transform_image(path)
+        // transform_image(path)
     });
     // console.log(await Bun.file("./configurations/ecmo").json())
     // let rects = (await Bun.file("./configurations/impella").json())["areas"].map(a => {
@@ -81,25 +81,25 @@ if (!fs.existsSync("./photos/impella")) {
 }
 
 
-let child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video0 -r 1 -qscale:v 2 -update 1 -r 1 ./photos/webcam.jpg', {shell: true});
+if (impella_on) {
+    let child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video0 -r 1 -qscale:v 2 -update 1 -r 1 ./photos/webcam.jpg', {shell: true});
 
-child.on('close', (code) => {
-    set_child();
-})
+    child.on('close', (code) => {
+        set_child();
+    })
 
-function set_child(){
-    setTimeout(() => {
-        child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video0 -r 1 -qscale:v 2 -update 1 ./photos/webcam.jpg', {shell: true});
-        child.on('close', (code) => {
-            set_child();
-        })
-        child.stderr.on("data", (data) => {
-            console.log(`ffmpeg: ${data}`)
-        })
-    }, 2000)
+    function set_child(){
+        setTimeout(() => {
+            child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video0 -r 1 -qscale:v 2 -update 1 ./photos/webcam.jpg', {shell: true});
+            child.on('close', (code) => {
+                set_child();
+            })
+            child.stderr.on("data", (data) => {
+                console.log(`ffmpeg: ${data}`)
+            })
+        }, 2000)
+    }
 }
-
-
 
 const app = new Elysia({})
 
