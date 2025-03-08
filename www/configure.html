@@ -182,6 +182,9 @@
 
         if (event.target.classList.contains("rect") && selected_rectangle === null) {
             selected_rectangle = event.target;
+            while (selected_rectangle.firstChild) {
+                selected_rectangle.lastChild.remove()
+            }
             selected_rectangle.style.pointerEvents = "none";
             selected_rectangle.style.backgroundColor = "#8000808c";
             return;
