@@ -28,9 +28,50 @@ if (!fs.existsSync("./photos/ecmo")) {
 }
 if (ecmo_on) setInterval(async () => {
     let path = `./photos/ecmo/latest.jpeg`
-    exec(`rpicam-still -o ${path} -t 1`, function (err, stdout, stderr) {
+    exec(`rpicam-still -o ${path} -t 1`, async function (err, stdout, stderr) {
         //TODO detect errors here
         // transform_image(path)
+        var jimpSrc = await Jimp.read(path);
+        var src = cv.matFromImageData(jimpSrc.bitmap);
+
+        let srcPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, jimpSrc.height, 0, jimpSrc.height, jimpSrc.width, 0, jimpSrc.width]);
+
+
+
+        // Define destination points (e.g. a rectangle of desired output dimensions)
+        let width = jimpSrc.width + 500;  // desired width
+        let height = jimpSrc.height + 500; // desired height
+
+        let dstPoints = cv.matFromArray(4, 1, cv.CV_32FC2,
+            [
+                0, 0,
+                jimpSrc.height - 150, 0,
+                jimpSrc.height - 400, jimpSrc.width + 300,
+                0, jimpSrc.width + 100
+            ]
+        );
+
+        // Get the perspective transformation matrix
+        let M = cv.getPerspectiveTransform(srcPoints, dstPoints);
+
+        // Create an output Mat and set the desired size
+        let dst = new cv.Mat();
+        let dsize = new cv.Size(width, height);
+
+        // Apply the warp
+        cv.warpPerspective(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+
+
+        // Don't forget to free memory
+        srcPoints.delete(); dstPoints.delete(); M.delete();
+
+        new Jimp({
+            width: dst.cols,
+            height: dst.rows,
+            data: Buffer.from(dst.data)
+        })
+            .greyscale()
+            .write('output2.png');
     });
     // console.log(await Bun.file("./configurations/ecmo").json())
     // let rects = (await Bun.file("./configurations/impella").json())["areas"].map(a => {
@@ -86,15 +127,15 @@ if (!fs.existsSync("./photos/impella")) {
 
 
 if (impella_on) {
-    let child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video0 -r 1 -qscale:v 2 -update 1 -r 1 ./photos/webcam.jpg', {shell: true});
+    let child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video0 -r 1 -qscale:v 2 -update 1 -r 1 ./photos/webcam.jpg', { shell: true });
 
     child.on('close', (code) => {
         set_child();
     })
 
-    function set_child(){
+    function set_child() {
         setTimeout(() => {
-            child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video0 -r 1 -qscale:v 2 -update 1 ./photos/webcam.jpg', {shell: true});
+            child = spawn('ffmpeg -y -f v4l2 -video_size 1280x720 -i /dev/video0 -r 1 -qscale:v 2 -update 1 ./photos/webcam.jpg', { shell: true });
             child.on('close', (code) => {
                 set_child();
             })
