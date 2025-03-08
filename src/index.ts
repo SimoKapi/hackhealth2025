@@ -26,7 +26,32 @@ setInterval(async () => {
         // transform_image(path)
     });
     // console.log(await Bun.file("./configurations/ecmo").json())
-    console.log(await ocr_image(`./photos/impella/latest.jpeg`, (await Bun.file("./configurations/impella").json())["areas"]))
+    // let rects = (await Bun.file("./configurations/impella").json())["areas"].map(a => {
+    //     return {
+    //         name: a["label"],
+    //         // unit: "l/min",
+    //         unit: undefined,
+    //         rectangle: ({
+    //             left: a["x"],
+    //             top: a["y"],
+    //             width: a["width"],
+    //             height: a["height"]
+    //         } as Tesseract.Rectangle)
+    //     }
+    // })
+    console.log(await ocr_image(`./photos/impella/latest.jpeg`, (await Bun.file("./configurations/impella").json())["areas"].map((a : any) => {
+        return {
+            name: a["label"],
+            // unit: "l/min",
+            unit: undefined,
+            rectangle: ({
+                left: a["x"],
+                top: a["y"],
+                width: a["width"],
+                height: a["height"]
+            } as Tesseract.Rectangle)
+        }
+    })))
 }, 10000)
 
 setInterval(() => {
