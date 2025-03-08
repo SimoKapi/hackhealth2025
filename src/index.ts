@@ -25,8 +25,8 @@ setInterval(async () => {
         //TODO detect errors here
         // transform_image(path)
     });
-    console.log(await Bun.file("./configurations/ecmo").json())
-    console.log(await ocr_image(path, (await Bun.file("./configurations/ecmo").json())["areas"]))
+    // console.log(await Bun.file("./configurations/ecmo").json())
+    console.log(await ocr_image(path, (await Bun.file("./configurations/impella").json())["areas"]))
 }, 10000)
 
 setInterval(() => {
