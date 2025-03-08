@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
@@ -9,7 +10,13 @@
 </head>
 <script>
     let config_type = window.location.pathname.split("/")[2]
+
+    let config_values_register = {
+        "ecmo": ["V", "P_ven", "P_int", "P_art", "Rotations"],
+        "impella": ["Flow", "Locator 1", "Locator 2", "Rinse pressure", "Engine current", "Impella flow"]
+    }
 </script>
+
 <body>
     <div id="container" class="container">
         <!-- <canvas width="200" class="box-selector" style="z-index: 2;"></canvas> -->
@@ -22,16 +29,16 @@
     <div class="container selection-list">
         <div>
             <!-- <input type="file" onchange="load_img(this)"> -->
-             <button onclick="load_latest()">Load Latest Image</button>
+            <button onclick="load_latest()">Load Latest Image</button>
         </div>
         <button onclick="create_rect()">Add Rectangle</button>
         <button onclick="clearSelection()">Reset selection</button>
         <ul id="selections">
-            
+
         </ul>
         <button onclick="request_sample()">Request Sample</button>
 
-        <button onclick="request_sample()">Save Configuration</button>
+        <button onclick="save_configuration()">Save Configuration</button>
     </div>
 </body>
 
@@ -39,8 +46,8 @@
 
     let rect_register = {}
 
-    function load_img(input){
-        if(input.files && input.files[0]){
+    function load_img(input) {
+        if (input.files && input.files[0]) {
             let reader = new FileReader();
 
             reader.onload = (e) => {
@@ -53,7 +60,7 @@
 
     let latest_name = undefined;
 
-    async function load_latest(){
+    async function load_latest() {
         let res = await fetch(`http://localhost:9200/image/latest/${config_type}`)
         latest_name = await res.text();
 
@@ -62,9 +69,9 @@
         document.getElementById("img").src = objectURL
     }
 
-    function create_dropdown(values = []){
+    function create_dropdown(values = []) {
         let dropdown = document.createElement("select");
-        for(let val of values){
+        for (let val of values) {
             let el = document.createElement("option");
             el.innerText = val;
             el.value = val;
@@ -73,7 +80,7 @@
         return dropdown;
     }
 
-    function create_rect(){
+    function create_rect() {
         let el = (() => {
             let el = document.createElement("div");
             el.setAttribute("class", "rect");
@@ -98,7 +105,7 @@
             di.li = li;
             di.appendChild(li)
 
-            let dropdown = create_dropdown(["V", "P_ven", "P_int", "P_art", "Rotations"]);
+            let dropdown = create_dropdown(config_values_register[config_type]);
             dropdown.style.cssText = "margin-right: 10px;"
             di.label = dropdown
             di.appendChild(dropdown)
@@ -106,7 +113,7 @@
             let b = document.createElement("button");
             b.innerText = "Remove";
             b.onclick = () => {
-                if(selected_rectangle == rect_register[el.el_id]["rectangle"]){
+                if (selected_rectangle == rect_register[el.el_id]["rectangle"]) {
                     selected_rectangle = null;
                 }
 
@@ -139,7 +146,7 @@
 
     container.addEventListener("click", (event) => {
 
-        if(event.target.classList.contains("rect") && selected_rectangle === null){
+        if (event.target.classList.contains("rect") && selected_rectangle === null) {
             selected_rectangle = event.target;
             selected_rectangle.style.pointerEvents = "none";
             selected_rectangle.style.backgroundColor = "#8000808c";
@@ -154,20 +161,20 @@
         let left = Math.round(event.clientX - Number.parseFloat(c.left));
         let right = Math.round((Number.parseFloat(c.left) + Number.parseFloat(c.width)) - (event.clientX - Number.parseFloat(c.left)));
 
-        if(selected_rectangle === null){
-            if(count > 1){
+        if (selected_rectangle === null) {
+            if (count > 1) {
                 count = 0;
             }
             return;
         }
         // console.log(top, bottom, left, right)
-        
-        if(count == 0){
+
+        if (count == 0) {
             selected_rectangle.style.top = `${top}px`
             selected_rectangle.style.left = `${left}px`
             selected_rectangle.style.backgroundColor = "rgba(25, 340, 0, 0.43)"
         }
-        if(count == 1){
+        if (count == 1) {
             selected_rectangle.style.bottom = `${bottom}px`
             selected_rectangle.style.right = `${right}px`
         }
@@ -177,7 +184,7 @@
 
         count++;
         console.log(count)
-        if(count > 1){
+        if (count > 1) {
             count = 0;
             selected_rectangle.style.backgroundColor = "#00ffff6e";
             selected_rectangle.style.pointerEvents = "auto";
@@ -186,42 +193,48 @@
 
     })
 
-    async function request_sample(){
-
+    function get_areas(){
         let img = document.getElementById("img")
         let comp_img = window.getComputedStyle(img);
 
         console.log(img.naturalWidth, Number.parseFloat(comp_img.width))
-        let k1 = img.naturalWidth/Number.parseFloat(comp_img.width);
-        let k2 = img.naturalHeight/Number.parseFloat(comp_img.height);
+        let k1 = img.naturalWidth / Number.parseFloat(comp_img.width);
+        let k2 = img.naturalHeight / Number.parseFloat(comp_img.height);
 
         let output = [];
-        for(let k in rect_register){
+        for (let k in rect_register) {
             let q = window.getComputedStyle(rect_register[k]["rectangle"])
             output.push({
-                x: Number.parseFloat(q.left)*k1,
-                y: Number.parseFloat(q.top)*k2,
-                width: Number.parseFloat(q.width)*k1,
-                height: Number.parseFloat(q.height)*k2,
+                x: Number.parseFloat(q.left) * k1,
+                y: Number.parseFloat(q.top) * k2,
+                width: Number.parseFloat(q.width) * k1,
+                height: Number.parseFloat(q.height) * k2,
                 label: rect_register[k]["selection"].label.value
             })
         }
+
+        return output;
+    }
+
+    async function request_sample() {
+        let areas = get_areas()
+        
         // console.log(output)
-        if(latest_name !== undefined){
+        if (latest_name !== undefined) {
             let res = await fetch(`http://localhost:9200/ocr/sample/${config_type}`, {
                 method: "POST",
-                headers: {"content-type": "application/json"},
+                headers: { "content-type": "application/json" },
                 body: JSON.stringify({
                     image_name: latest_name,
-                    areas: output
+                    areas: areas
                 })
             })
-            if(res.ok){
+            if (res.ok) {
                 let j = await res.json();
-                for(let val of j){
-                    for(let k in rect_register){
-                        if(rect_register[k]["selection"].label.value == val["id"]){
-                            while(rect_register[k]["rectangle"].firstChild){
+                for (let val of j) {
+                    for (let k in rect_register) {
+                        if (rect_register[k]["selection"].label.value == val["id"]) {
+                            while (rect_register[k]["rectangle"].firstChild) {
                                 rect_register[k]["rectangle"].lastChild.remove();
                             }
                             let el = document.createElement("div");
@@ -235,5 +248,21 @@
         }
     }
 
+    async function save_configuration() {
+        let areas = get_areas()
+
+        let res = await fetch(`http://localhost:9200/api/configure/${config_type}`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+                image_name: latest_name,
+                areas: areas
+            })
+        })
+        if (res.ok) {
+        }
+    }
+
 </script>
+
 </html>
