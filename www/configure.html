@@ -72,6 +72,8 @@
 
 <script>
 
+    const url = `${window.location.protocol}//${window.location.host}`
+
     const datalink = document.getElementById("data-link")
     datalink.href=`../${config_type}.html`
 
@@ -92,10 +94,10 @@
     let latest_name = undefined;
 
     async function load_latest() {
-        let res = await fetch(`http://localhost:9200/image/latest/${config_type}`)
+        let res = await fetch(`${url}/image/latest/${config_type}`)
         latest_name = await res.text();
 
-        let res_img = await fetch(`http://localhost:9200/image/file/${config_type}/${latest_name}`)
+        let res_img = await fetch(`${url}/image/file/${config_type}/${latest_name}`)
         var objectURL = URL.createObjectURL((await res_img.blob()));
         document.getElementById("img").src = objectURL
     }
@@ -259,7 +261,7 @@
         
         // console.log(output)
         if (latest_name !== undefined) {
-            let res = await fetch(`http://localhost:9200/ocr/sample/${config_type}`, {
+            let res = await fetch(`${url}/ocr/sample/${config_type}`, {
                 method: "POST",
                 headers: { "content-type": "application/json" },
                 body: JSON.stringify({
@@ -291,7 +293,7 @@
     async function save_configuration() {
         let areas = get_areas()
 
-        let res = await fetch(`http://localhost:9200/api/configure/${config_type}`, {
+        let res = await fetch(`${url}/api/configure/${config_type}`, {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify({
