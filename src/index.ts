@@ -23,7 +23,7 @@ setInterval(() => {
     let path = `./photos/ecmo/latest.jpeg`
     exec(`rpicam-still -o ${path} -t 1`, function (err, stdout, stderr) {
         //TODO detect errors here
-        transform_image(path)
+        // transform_image(path)
     })
 }, 10000)
 
