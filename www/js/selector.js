@@ -23,6 +23,7 @@ window.addEventListener("mousedown", (event) => {
 
 window.addEventListener("mousemove", (event) => {
     if (!firstPoint) return
+    console.log("MOIGVJOIN")
     tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height)
     const rectWidth = event.clientX - firstPoint[0]
     const rectHeight = event.clientY - firstPoint[1]
