@@ -120,7 +120,7 @@
             el.setAttribute("style", "position: absolute; top: 0; min-height: 20px; min-width: 20px; background-color: #00ffff6e;");
             return el;
         })();
-        el.el_id = crypto.randomUUID();
+        el.el_id = [0, 0, 0, 0, 0, 0, 0, 0, 0,].map(a => Math.random() * 1000000).join()
 
         let di = document.createElement("div")
         di.style.cssText = "display: flex; flex-direction: row;"
