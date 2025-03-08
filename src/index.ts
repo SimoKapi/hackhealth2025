@@ -26,7 +26,7 @@ setInterval(async () => {
         // transform_image(path)
     });
     console.log(await Bun.file("./configurations/ecmo").json())
-    console.log(ocr_image(path, (await Bun.file("./configurations/ecmo").json())["areas"]))
+    console.log(await ocr_image(path, (await Bun.file("./configurations/ecmo").json())["areas"]))
 }, 10000)
 
 setInterval(() => {
