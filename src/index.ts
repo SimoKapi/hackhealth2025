@@ -39,7 +39,7 @@ setInterval(async () => {
     //         } as Tesseract.Rectangle)
     //     }
     // })
-    console.log(await ocr_image(`./photos/impella/latest.jpeg`, (await Bun.file("./configurations/impella").json())["areas"].map((a : any) => {
+    app.server?.publish("ecmo_json_export", JSON.stringify(await ocr_image(`./photos/impella/latest.jpeg`, (await Bun.file("./configurations/impella").json())["areas"].map((a : any) => {
         return {
             name: a["label"],
             // unit: "l/min",
@@ -51,7 +51,7 @@ setInterval(async () => {
                 height: a["height"]
             } as Tesseract.Rectangle)
         }
-    })))
+    }))))
 }, 10000)
 
 setInterval(() => {
@@ -138,7 +138,16 @@ app.post("/api/configure/:type", async ({params, body}) => {
     })
 })
 
-app.ws("/export/json", {
+app.ws("/ecmo/export/json", {
+    open(ws) {
+        ws.subscribe("ecmo_json_export")
+    },
+    message(ws, message) {
+
+    },
+});
+
+app.ws("/impella/export/json", {
     open(ws) {
         ws.subscribe("json_export")
     },
