@@ -13,7 +13,7 @@ import cv from "@techstark/opencv-js"
 
 let sanitize = require("sanitize-filename")
 
-const impella_on = false
+const impella_on = true
 const ecmo_on = true
 
 if (!fs.existsSync("./photos")) {
