@@ -30,14 +30,15 @@ if (ecmo_on) setInterval(async () => {
     let intermediate_path = "./photos/ecmo_latest.jpeg"
     // let output_path = `./photos/ecmo/latest.jpeg`
     exec(`rpicam-still -o ${intermediate_path} -t 1`, async function (err, stdout, stderr) {
+        if (err) {
+            console.error(err.message)
+            return
+        }
         //TODO detect errors here
-        // transform_image(path)
         var jimpSrc = await Jimp.read(intermediate_path);
         var src = cv.matFromImageData(jimpSrc.bitmap);
 
         let srcPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, jimpSrc.height, 0, jimpSrc.height, jimpSrc.width, 0, jimpSrc.width]);
-
-
 
         // Define destination points (e.g. a rectangle of desired output dimensions)
         let width = jimpSrc.width + 500;  // desired width
@@ -72,22 +73,9 @@ if (ecmo_on) setInterval(async () => {
             data: Buffer.from(dst.data)
         })
             .greyscale()
+            .contrast(0.2)
             .write(`./photos/ecmo/latest.jpeg`);
     });
-    // console.log(await Bun.file("./configurations/ecmo").json())
-    // let rects = (await Bun.file("./configurations/impella").json())["areas"].map(a => {
-    //     return {
-    //         name: a["label"],
-    //         // unit: "l/min",
-    //         unit: undefined,
-    //         rectangle: ({
-    //             left: a["x"],
-    //             top: a["y"],
-    //             width: a["width"],
-    //             height: a["height"]
-    //         } as Tesseract.Rectangle)
-    //     }
-    // })
     app.server?.publish("ecmo_json_export", JSON.stringify(await ocr_image(`./photos/ecmo/latest.jpeg`, (await Bun.file("./configurations/ecmo").json())["areas"].map((a : any) => {
         return {
             name: a["label"],
@@ -101,7 +89,7 @@ if (ecmo_on) setInterval(async () => {
             } as Tesseract.Rectangle)
         }
     }))))
-}, 10000)
+}, 1000)
 
 if (impella_on) setInterval(async () => {
     let path = `./photos/impella/latest.jpeg`;
