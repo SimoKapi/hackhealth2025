@@ -123,7 +123,7 @@
         el.el_id = [0, 0, 0, 0, 0, 0, 0, 0, 0,].map(a => Math.random() * 1000000).join()
 
         let di = document.createElement("div")
-        di.style.cssText = "display: flex; flex-direction: row;"
+        di.style.cssText = "display: flex; flex-direction: row; margin-bottom: 5px; align-items: center;"
         di.addEventListener("mouseenter", (event) => {
             el.col_backup = el.style.backgroundColor;
             el.style.backgroundColor = "rgba(187, 255, 0, 0.43)"
@@ -133,7 +133,7 @@
         })
         {
             let li = document.createElement("li");
-            li.style.cssText = "margin-right: 10px;"
+            li.style.cssText = "margin-right: 10px; width:400px;"
             li.innerText = `X: 0; Y: 0; WIDTH: 0; HEIGHT: 0`;
             di.li = li;
             di.appendChild(li)
