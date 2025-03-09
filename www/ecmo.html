@@ -91,8 +91,8 @@
                 <script>
                     const ip = "172.16.88.80"
                     class dataset {
-                        constructor(name, x, y, xlabel, ylabel, color) {
-                            this.name = name
+                        constructor(x, y, xlabel, ylabel, color) {
+                            // this.name = name
                             this.x = x
                             this.y = y
                             this.xlabel = xlabel
@@ -137,7 +137,7 @@
                             xAxis,
                             [],
                             "time",
-                            "P_ing",
+                            "P_int",
                             "rgba(255, 0, 0, 1)"
                         )
                     ]
@@ -149,8 +149,7 @@
                         for (let i = 0; i < datasets.length; i++) {
                             const index = datasets[i].ylabel
                             const id = index.replaceAll(" ", "_")
-                            console.log(parsed[index])
-                            const idValue = parsed[index].value
+                            const idValue = parsed.find(i => i.id == index).value
                             document.getElementById(id).textContent = idValue
                             datasets[i].y.push(idValue)
                             while (datasets[i].y.length > dataLimit) {
