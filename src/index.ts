@@ -89,7 +89,6 @@ if (ecmo_on) setInterval(async () => {
             } as Tesseract.Rectangle)
         }
     }))
-    console.log(image)
     app.server?.publish("ecmo_json_export", JSON.stringify(image))
 }, 1000)
 

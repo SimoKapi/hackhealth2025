@@ -168,6 +168,7 @@
                                 datasets[i].y.shift()
                             }
                         }
+                        selectSet(currentIndex)
                     })
 
                     const chart = new Chart("myChart", {
@@ -199,7 +200,9 @@
                         }
                     })
 
+                    let currentIndex = 0
                     function selectSet(index) {
+                        currentIndex = index
                         chart.data.labels = datasets[index].x
                         chart.data.datasets = [{
                             label: datasets[index].ylabel,
