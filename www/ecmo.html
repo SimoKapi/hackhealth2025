@@ -144,6 +144,7 @@
 
                     const socket = new WebSocket(`ws://${ip}:9200/ecmo/export/json`)
                     socket.addEventListener("message", (msg) => {
+                        console.log(msg)
                         const parsed = JSON.parse(msg.data)
                         for (let i = 0; i < datasets.length; i++) {
                             const id = id.replaceAll(" ", "_")

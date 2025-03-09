@@ -76,7 +76,7 @@ if (ecmo_on) setInterval(async () => {
     //         .contrast(0.2)
     //         .write(`./photos/ecmo/latest.jpeg`);
     // });
-    app.server?.publish("ecmo_json_export", JSON.stringify(await ocr_image(`./photos/ecmo/latest.jpeg`, (await Bun.file("./configurations/ecmo").json())["areas"].map((a : any) => {
+    const image = await ocr_image(`./photos/ecmo/latest.jpeg`, (await Bun.file("./configurations/ecmo").json())["areas"].map((a : any) => {
         return {
             name: a["label"],
             // unit: "l/min",
@@ -88,7 +88,9 @@ if (ecmo_on) setInterval(async () => {
                 height: a["height"]
             } as Tesseract.Rectangle)
         }
-    }))))
+    }))
+    console.log(image)
+    app.server?.publish("ecmo_json_export", JSON.stringify(image))
 }, 1000)
 
 if (impella_on) setInterval(async () => {
