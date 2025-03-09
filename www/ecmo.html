@@ -48,22 +48,26 @@
                 <div class="alert alert-success">
                     System is active
                 </div>
-                <table class="table w-auto mx-auto">
+                <table class="table mx-auto">
                     <tbody>
                         <tr>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">V</button> <span id="V"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(0)">V</button> <span id="V">1.45</span> lpm</td>
                             <td><button class="btn btn-outline-primary val-name" onclick="selectSet(1)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
                                 <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
-                              </svg></button> <span id="Rotations"></span></td>
+                              </svg></button> <span id="Rotations">1090</span> rpm</td>
                         </tr>
                         <tr>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(2)">P<sub>Ven</sub></button> <span id="P_ven"></span></td>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(3)">P<sub>Art</sub></button> <span id="P_art"></span></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(2)">P<sub>Ven</sub></button> <span id="P_ven">35</span> mmHg</td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(3)">P<sub>Art</sub></button> <span id="P_art">70</span> mmHg</td>
                         </tr>
                         <tr>
-                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(4)">P<sub>Int</sub></button> <span id="P_int"></span></td>
-                            <td></td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(4)">P<sub>Int</sub></button> <span id="P_int">73</span> mmHg</td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(5)">T<sub>Art</sub></button> <span id="T_art">25.0</span> °C</td>
+                        </tr>
+                        <tr>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(4)">Δp</button> <span id="D_P">3</span> mmHg</td>
+                            <td><button class="btn btn-outline-primary val-name" onclick="selectSet(5)">S<sub>v</sub>O<sub>2</sub></button> <span id="SvO2">----</span> %</td>
                         </tr>
                     </tbody>
                 </table>
@@ -101,13 +105,13 @@
                         }
                     }
 
-                    const dataLimit = 10
+                    const dataLimit = 20
                     const xAxis = Array(dataLimit).fill(1).map((a, i) => 10*(i + 1))
                     // const xAxis = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
                     const datasets = [
                         new dataset(
                             xAxis,
-                            [],
+                            [10, 20, 22, 26, 35, 50, 53, 25, 20, 10, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0],
                             "time",
                             "V",
                             "rgba(255, 0, 0, 1)"
@@ -139,26 +143,47 @@
                             "time",
                             "P_int",
                             "rgba(255, 0, 0, 1)"
+                        ),
+                        new dataset(
+                            xAxis,
+                            [],
+                            "time",
+                            "T_art",
+                            "rgba(255, 0, 0, 1)"
+                        ),
+                        new dataset(
+                            xAxis,
+                            [],
+                            "time",
+                            "D_P",
+                            "rgba(255, 0, 0, 1)"
+                        ),
+                        new dataset(
+                            xAxis,
+                            [],
+                            "time",
+                            "SvO2",
+                            "rgba(255, 0, 0, 1)"
                         )
                     ]
 
                     const socket = new WebSocket(`ws://${ip}:9200/ecmo/export/json`)
-                    socket.addEventListener("message", (msg) => {
-                        console.log(msg)
-                        const parsed = JSON.parse(msg.data)
-                        for (let i = 0; i < datasets.length; i++) {
-                            if (!parsed.map((item) => item.id).includes(datasets[i].ylabel)) continue
-                            const index = datasets[i].ylabel
-                            const id = index.replaceAll(" ", "_")
-                            const idValue = parsed.find(i => i.id == index).value
-                            document.getElementById(id).textContent = idValue
-                            datasets[i].y.push(idValue)
-                            while (datasets[i].y.length > dataLimit) {
-                                datasets[i].y.shift()
-                            }
-                        }
-                        selectSet(currentIndex)
-                    })
+                    // socket.addEventListener("message", (msg) => {
+                    //     console.log(msg)
+                    //     const parsed = JSON.parse(msg.data)
+                    //     for (let i = 0; i < datasets.length; i++) {
+                    //         if (!parsed.map((item) => item.id).includes(datasets[i].ylabel)) continue
+                    //         const index = datasets[i].ylabel
+                    //         const id = index.replaceAll(" ", "_")
+                    //         const idValue = parsed.find(i => i.id == index).value
+                    //         document.getElementById(id).textContent = idValue
+                    //         datasets[i].y.push(idValue)
+                    //         while (datasets[i].y.length > dataLimit) {
+                    //             datasets[i].y.shift()
+                    //         }
+                    //     }
+                    //     selectSet(currentIndex)
+                    // })
 
                     const chart = new Chart("myChart", {
                         type: "line",

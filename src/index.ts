@@ -90,7 +90,7 @@ if (ecmo_on) setInterval(async () => {
         }
     }))
     app.server?.publish("ecmo_json_export", JSON.stringify(image))
-}, 1000)
+}, 10000)
 
 if (impella_on) setInterval(async () => {
     let path = `./photos/impella/latest.jpeg`;

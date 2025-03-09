@@ -70,6 +70,5 @@ th, td {
 
 .table span {
     text-align: center;
-    width:100%;
-    display: block;
+    display: inline-block;
 }
