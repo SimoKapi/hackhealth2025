@@ -149,8 +149,8 @@
                         for (let i = 0; i < datasets.length; i++) {
                             const index = datasets[i].ylabel
                             const id = index.replaceAll(" ", "_")
+                            console.log(parsed[index])
                             const idValue = parsed[index].value
-                            // console.log(idValue)
                             document.getElementById(id).textContent = idValue
                             datasets[i].y.push(idValue)
                             while (datasets[i].y.length > dataLimit) {
