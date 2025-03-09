@@ -159,8 +159,8 @@
                     socket.addEventListener("message", (msg) => {
                         const parsed = JSON.parse(msg.data)
                         for (let i = 0; i < datasets.length; i++) {
-                            const id = id.replaceAll(" ", "_")
                             const index = datasets[i].ylabel
+                            const id = index.replaceAll(" ", "_")
                             const idValue = parsed.find(i => i.id === index).value
                             document.getElementById(id).textContent = idValue
                             datasets[i].y.push(idValue)
