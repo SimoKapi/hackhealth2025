@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Image box selector</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='css/selector.css'>
+</head>
+<body>
+    <div class="container">
+        <canvas class="box-selector"></canvas>
+        <canvas class="box-selector-temp"></canvas>
+        <img id="img" src="../src/test_images/impella.png">
+    </div>
+    <div class="container selection-list">
+        <button onclick="clearSelection()">Reset selection</button>
+        <ul id="selections"></ul>
+    </div>
+</body>
+
+<script src='js/selector.js'></script>
+</html>

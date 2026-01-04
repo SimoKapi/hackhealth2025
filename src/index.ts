@@ -13,7 +13,7 @@ import cv from "@techstark/opencv-js"
 
 let sanitize = require("sanitize-filename")
 
-const impella_on = true
+const impella_on = false
 const ecmo_on = true
 
 if (!fs.existsSync("./photos")) {
@@ -29,53 +29,53 @@ if (!fs.existsSync("./photos/ecmo")) {
 if (ecmo_on) setInterval(async () => {
     let intermediate_path = "./photos/ecmo_latest.jpeg"
     // let output_path = `./photos/ecmo/latest.jpeg`
-    exec(`rpicam-still -o ${intermediate_path} -t 1`, async function (err, stdout, stderr) {
-        if (err) {
-            console.error(err.message)
-            return
-        }
-        //TODO detect errors here
-        var jimpSrc = await Jimp.read(intermediate_path);
-        var src = cv.matFromImageData(jimpSrc.bitmap);
+    // exec(`rpicam-still -o ${intermediate_path} -t 1`, async function (err, stdout, stderr) {
+    //     if (err) {
+    //         console.error(err.message)
+    //         return
+    //     }
+    //     //TODO detect errors here
+    //     var jimpSrc = await Jimp.read(intermediate_path);
+    //     var src = cv.matFromImageData(jimpSrc.bitmap);
 
-        let srcPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, jimpSrc.height, 0, jimpSrc.height, jimpSrc.width, 0, jimpSrc.width]);
+    //     let srcPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, jimpSrc.height, 0, jimpSrc.height, jimpSrc.width, 0, jimpSrc.width]);
 
-        // Define destination points (e.g. a rectangle of desired output dimensions)
-        let width = jimpSrc.width + 500;  // desired width
-        let height = jimpSrc.height + 500; // desired height
+    //     // Define destination points (e.g. a rectangle of desired output dimensions)
+    //     let width = jimpSrc.width + 500;  // desired width
+    //     let height = jimpSrc.height + 500; // desired height
 
-        let dstPoints = cv.matFromArray(4, 1, cv.CV_32FC2,
-            [
-                0, 0,
-                jimpSrc.height - 150, 0,
-                jimpSrc.height - 400, jimpSrc.width + 300,
-                0, jimpSrc.width + 100
-            ]
-        );
+    //     let dstPoints = cv.matFromArray(4, 1, cv.CV_32FC2,
+    //         [
+    //             0, 0,
+    //             jimpSrc.height - 150, 0,
+    //             jimpSrc.height - 400, jimpSrc.width + 300,
+    //             0, jimpSrc.width + 100
+    //         ]
+    //     );
 
-        // Get the perspective transformation matrix
-        let M = cv.getPerspectiveTransform(srcPoints, dstPoints);
+    //     // Get the perspective transformation matrix
+    //     let M = cv.getPerspectiveTransform(srcPoints, dstPoints);
 
-        // Create an output Mat and set the desired size
-        let dst = new cv.Mat();
-        let dsize = new cv.Size(width, height);
+    //     // Create an output Mat and set the desired size
+    //     let dst = new cv.Mat();
+    //     let dsize = new cv.Size(width, height);
 
-        // Apply the warp
-        cv.warpPerspective(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+    //     // Apply the warp
+    //     cv.warpPerspective(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
 
 
-        // Don't forget to free memory
-        srcPoints.delete(); dstPoints.delete(); M.delete();
+    //     // Don't forget to free memory
+    //     srcPoints.delete(); dstPoints.delete(); M.delete();
 
-        new Jimp({
-            width: dst.cols,
-            height: dst.rows,
-            data: Buffer.from(dst.data)
-        })
-            .greyscale()
-            .contrast(0.2)
-            .write(`./photos/ecmo/latest.jpeg`);
-    });
+    //     new Jimp({
+    //         width: dst.cols,
+    //         height: dst.rows,
+    //         data: Buffer.from(dst.data)
+    //     })
+    //         .greyscale()
+    //         .contrast(0.2)
+    //         .write(`./photos/ecmo/latest.jpeg`);
+    // });
     const image = await ocr_image(`./photos/ecmo/latest.jpeg`, (await Bun.file("./configurations/ecmo").json())["areas"].map((a : any) => {
         return {
             name: a["label"],
@@ -90,7 +90,8 @@ if (ecmo_on) setInterval(async () => {
         }
     }))
     app.server?.publish("ecmo_json_export", JSON.stringify(image))
-}, 10000)
+    console.log("PUSHED")
+}, 1000)
 
 if (impella_on) setInterval(async () => {
     let path = `./photos/impella/latest.jpeg`;
