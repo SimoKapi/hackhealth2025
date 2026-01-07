@@ -1,6 +1,6 @@
 # Hackhealth 2025 submission (MSP Hub)
 
-A Ventricular Assist Device (VAD) monitor and data telemeter
+A Ventricular Assist Device (VAD) monitor and data telemeter  
 Created as a submission to the 2025 European Healthcare Hackathon
 
 ## Technical Features
